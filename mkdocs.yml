@@ -1,0 +1,12 @@
+site_name: Mermaid Example
+plugins:
+  - search
+  - mermaid2
+
+nav:
+- Home: 'index.md'
+- HighLevelDesign: 'HighLevelDesign.md'
+
+markdown_extensions:
+  - toc:
+      baselevel: 2

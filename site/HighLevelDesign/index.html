@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Connect4 - Mermaid Example</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Mermaid Example</a>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#connect4" class="nav-link">Connect4</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#introduction" class="nav-link">Introduction</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#system-overview" class="nav-link">System Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#system-architecture" class="nav-link">System Architecture</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#design-considerations" class="nav-link">Design Considerations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#subsystems-and-modules" class="nav-link">Subsystems and Modules</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#interface-design" class="nav-link">Interface Design</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#data-design" class="nav-link">Data Design</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#security-considerations" class="nav-link">Security Considerations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#performance-considerations" class="nav-link">Performance Considerations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#error-handling-and-logging" class="nav-link">Error Handling and Logging</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#testing-and-validation" class="nav-link">Testing and Validation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#appendices" class="nav-link">Appendices</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="connect4">Connect4</h1>
+<h2 id="introduction">Introduction</h2>
+<h3 id="purpose">Purpose</h3>
+<p>The aim is to develop an interactive version of the game which the candidate and interviewer
+can play together.</p>
+<p>A simple, text-based, representation of the grid is encouraged. For example, you might use '.' for empty slots, and 'x' and 'o' for pieces of the two players. Players can input their turns via the REPL, or you can implement a simple API.</p>
+<p>A minimal version of the game should support:
+- a 6 x 7 grid
+- players play pieces sequentially
+- the game identifies winning turns and ends at that point</p>
+<h3 id="scope">Scope</h3>
+<p>No UI.</p>
+<h2 id="system-overview">System Overview</h2>
+<p>Nb. First create the StateManager. Then create the Board, providing callback references to the StateManager functions, so that when a Counter enters a Slot in the Board, a callback is made to the StateManager with details of the change.</p>
+<h3 id="documenting-the-domain">Documenting the Domain</h3>
+<p>Process "Initialise game"
+  Caused by <code>connect4 start</code> command
+  Player 1 is instructed to take their turn by selecting a column</p>
+<p>Process "Take turn"
+  Caused by Next-turn event being raised by the StateManager
+  Player 1/2 takes turn by inputting the Column number they wish to drop their Counter into</p>
+<p>Process "End state reached"
+  Caused by Game-won event being raised by StateManager</p>
+<h3 id="system-context">System Context</h3>
+<p>Provides a high-level view of the system and its interactions with external entities (users, other systems).</p>
+<h4 id="external-entities">External Entities</h4>
+<p>Players: there will be two human players.</p>
+<h4 id="assumptions-and-constraints">Assumptions and Constraints</h4>
+<h5 id="assumptions">Assumptions</h5>
+<ul>
+<li>The game will be played on the same computer, with each Player taking it in turns to use the keyboard.</li>
+<li>Games do not need to be saved.</li>
+</ul>
+<h5 id="constraints">Constraints</h5>
+<ul>
+<li>The Board will comprise a 6 x 7 grid of Slots</li>
+<li>players play pieces sequentially</li>
+<li>the game identifies winning turns and ends at that point</li>
+<li>there are enough Counters to fill every Slot in the Board</li>
+</ul>
+<h3 id="architecture-diagram">Architecture Diagram</h3>
+<p>A visual representation of the system architecture, showing major components and their relationships.</p>
+<h2 id="system-architecture">System Architecture</h2>
+<h3 id="component-descriptions">Component Descriptions</h3>
+<h4 id="player">Player</h4>
+<p>A Player may take a Counter from the remaining Counters and place it into any of the Columns of the Board.</p>
+<h4 id="board">Board</h4>
+<p>The Board is made up of Rows and Columns of Slots.</p>
+<pre><code>Board {
+    rows: Row[]
+    columns: Column[]
+
+    dropCounter(column: number, counter: Counter)
+}
+</code></pre>
+<h4 id="slot">Slot</h4>
+<p>A Slot is a single disk sized section of the Board. It can hold one Counter.</p>
+<h4 id="counters">Counters</h4>
+<p>The set of all Counters.</p>
+<h4 id="counter">Counter</h4>
+<p>A Counter is a coloured plastic disk which can fit into the Columns of the Board (at least in the physical game).</p>
+<p>There are enough Counters to fill every Slot in the Board.</p>
+<pre><code>Colour: 'red' | 'yellow'
+
+Counter {
+    colour: Colour
+
+    getColour(): Colour
+}
+</code></pre>
+<h4 id="state-manager">State Manager</h4>
+<p>Checks to see if a winning state has occured.</p>
+<p>Go through each Slot. If a Slot has a Counter in it then perform the following checks:
+- Vertical line (ascending) check
+- Vertical line (descending) check
+- Horizontal line (left) check
+- Horizontal line (ascending) check
+- Diagonal line (ascending) check
+- Diagonal line (descending) check</p>
+<h3 id="data-flow-diagrams-dfd">Data Flow Diagrams (DFD)</h3>
+<p>Illustrates how data moves through the system.</p>
+<h3 id="use-case-diagrams">Use Case Diagrams</h3>
+<p>Depicts the interactions between users and the system.</p>
+<h3 id="use-case-diagrams_1">Use Case Diagrams</h3>
+<h3 id="deployment-diagram">Deployment Diagram</h3>
+<p>Shows how the software will be deployed across various hardware components or nodes.</p>
+<h2 id="design-considerations">Design Considerations</h2>
+<h3 id="assumptions_1">Assumptions</h3>
+<p>Lists assumptions made during the design process.</p>
+<h3 id="constraints_1">Constraints</h3>
+<p>Identifies constraints that impact the design (e.g., hardware, software, regulatory).</p>
+<h3 id="dependencies">Dependencies</h3>
+<p>Highlights dependencies on other systems or components.</p>
+<h3 id="design-principles">Design Principles</h3>
+<p>Outlines the principles guiding the design (e.g., scalability, maintainability).</p>
+<h2 id="subsystems-and-modules">Subsystems and Modules</h2>
+<h3 id="subsystem-overview">Subsystem Overview</h3>
+<p>Provides a high-level description of each subsystem and its role within the overall system.</p>
+<h3 id="module-descriptions">Module Descriptions</h3>
+<p>Detailed descriptions of each module within a subsystem, including their interfaces, functionality, and interconnections.</p>
+<h2 id="interface-design">Interface Design</h2>
+<h3 id="external-interfaces">External Interfaces</h3>
+<p>Describes interfaces with external systems, including APIs, communication protocols, and data formats.</p>
+<h3 id="internal-interfaces">Internal Interfaces</h3>
+<p>Details interfaces between internal components, specifying methods of interaction and data exchange.</p>
+<h2 id="data-design">Data Design</h2>
+<h3 id="data-model">Data Model</h3>
+<p>Describes the data entities, relationships, and data flow within the system.</p>
+<h3 id="database-design">Database Design</h3>
+<p>High-level description of the database schema, including tables, relationships, and key attributes.</p>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="security-architecture">Security Architecture</h3>
+<p>Overview of the system's security features and mechanisms.</p>
+<h3 id="authentication-and-authorization">Authentication and Authorization</h3>
+<p>Methods for ensuring secure access to the system.</p>
+<h3 id="data-protection">Data Protection</h3>
+<p>Measures for protecting sensitive data.</p>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<h3 id="performance-requirements">Performance Requirements</h3>
+<p>Expected performance metrics and benchmarks.</p>
+<h3 id="scalability-plan">Scalability Plan</h3>
+<p>Strategies for scaling the system to handle increased load.</p>
+<h3 id="optimization-techniques">Optimization Techniques</h3>
+<p>Approaches for optimizing system performance.</p>
+<h2 id="error-handling-and-logging">Error Handling and Logging</h2>
+<h3 id="error-management">Error Management</h3>
+<p>Strategies for detecting, reporting, and handling errors.</p>
+<h3 id="logging">Logging</h3>
+<p>Design of the logging mechanism for tracking system events and issues.</p>
+<h2 id="testing-and-validation">Testing and Validation</h2>
+<h3 id="testing-strategy">Testing Strategy</h3>
+<p>Overview of the testing approach, including types of testing to be performed (unit, integration, system).</p>
+<h3 id="validation-criteria">Validation Criteria</h3>
+<p>Criteria for validating that the system meets its requirements.</p>
+<h2 id="appendices">Appendices</h2>
+<h3 id="glossary">Glossary</h3>
+<p>Definitions of terms and acronyms used in the document.</p>
+<h3 id="references">References</h3>
+<p>List of references and sources used in the document.
+Change Log: Record of changes made to the document over time.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

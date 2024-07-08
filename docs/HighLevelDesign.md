@@ -19,19 +19,36 @@ No UI.
 
 ## System Overview
 
-### Documenting the Domain
-```
-Process "Initialise game"
-  
-```
+Nb. First create the StateManager. Then create the Board, providing callback references to the StateManager functions, so that when a Counter enters a Slot in the Board, a callback is made to the StateManager with details of the change.
+
+
 
 ### System Context
 Provides a high-level view of the system and its interactions with external entities (users, other systems).
+
+Interactions
+```
+Process "Initialise game"
+  Caused by `connect4 start` command
+  Player 1 is instructed to take their turn by selecting a column
+```
+
+```
+Process "Take turn"
+  Caused by Next-turn event being raised by the StateManager
+  Player 1/2 takes turn by inputting the Column number they wish to drop their Counter into
+```
+
+```
+Process "End state reached"
+  Caused by Game-won event being raised by StateManager
+```
 
 #### External Entities
 Players: there will be two human players.
 
 #### Assumptions and Constraints
+
 ##### Assumptions
 - The game will be played on the same computer, with each Player taking it in turns to use the keyboard.
 - Games do not need to be saved.
@@ -46,6 +63,7 @@ Players: there will be two human players.
 A visual representation of the system architecture, showing major components and their relationships.
 
 
+
 ## System Architecture
 
 ### Component Descriptions
@@ -55,6 +73,40 @@ A Player may take a Counter from the remaining Counters and place it into any of
 
 #### Board
 The Board is made up of Rows and Columns of Slots.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#ffcc00', 'edgeLabelBackground':'#ffcc00', 'tertiaryColor': '#ffeb3b'}}}%%
+graph TD
+    classDef empty fill:#ffffff,stroke:#000000,stroke-width:1px;
+    classDef red fill:#ff0000,stroke:#000000,stroke-width:1px;
+    classDef yellow fill:#ffff00,stroke:#000000,stroke-width:1px;
+
+    A0[A0] --- B0[B0] --- C0[C0] --- D0[D0] --- E0[E0] --- F0[F0] --- G0[G0]
+    A1[A1] --- B1[B1] --- C1[C1] --- D1[D1] --- E1[E1] --- F1[F1] --- G1[G1]
+    A2[A2] --- B2[B2] --- C2[C2] --- D2[D2] --- E2[E2] --- F2[F2] --- G2[G2]
+    A3[A3] --- B3[B3] --- C3[C3] --- D3[D3] --- E3[E3] --- F3[F3] --- G3[G3]
+    A4[A4] --- B4[B4] --- C4[C4] --- D4[D4] --- E4[E4] --- F4[F4] --- G4[G4]
+    A5[A5] --- B5[B5] --- C5[C5] --- D5[D5] --- E5[E5] --- F5[F5] --- G5[G5]
+
+    class A0,A1,A2,A3,A4,A5 empty
+    class B0,B1,B2,B3,B4,B5 empty
+    class C0,C1,C2,C3,C4,C5 empty
+    class D0,D1,D2,D3,D4,D5 empty
+    class E0,E1,E2,E3,E4,E5 empty
+    class F0,F1,F2,F3,F4,F5 empty
+    class G0,G1,G2,G3,G4,G5 empty
+
+    %% Example of filled cells
+    class C0 red
+    class D0 yellow
+    class E0 red
+    class F0 yellow
+    class G0 red
+    class D1 red
+    class E1 yellow
+    class F1 red
+    class G1 yellow
+```
 
 ```
 Board {
