@@ -9,15 +9,21 @@ can play together.
 A simple, text-based, representation of the grid is encouraged. For example, you might use '.' for empty slots, and 'x' and 'o' for pieces of the two players. Players can input their turns via the REPL, or you can implement a simple API.
 
 A minimal version of the game should support:
-● a 6 x 7 grid
-● players play pieces sequentially
-● the game identifies winning turns and ends at that point
+- a 6 x 7 grid
+- players play pieces sequentially
+- the game identifies winning turns and ends at that point
 
 ### Scope
 No UI.
 
 
 ## System Overview
+
+### Documenting the Domain
+```
+Process "Initialise game"
+  
+```
 
 ### System Context
 Provides a high-level view of the system and its interactions with external entities (users, other systems).
@@ -50,16 +56,46 @@ A Player may take a Counter from the remaining Counters and place it into any of
 #### Board
 The Board is made up of Rows and Columns of Slots.
 
+```
+Board {
+    rows: Row[]
+    columns: Column[]
+    
+    dropCounter(column: number, counter: Counter)
+}
+```
+
 #### Slot
 A Slot is a single disk sized section of the Board. It can hold one Counter.
+
+#### Counters
+The set of all Counters.
 
 #### Counter
 A Counter is a coloured plastic disk which can fit into the Columns of the Board (at least in the physical game).
 
 There are enough Counters to fill every Slot in the Board.
 
+```
+Colour: 'red' | 'yellow'
+
+Counter {
+    colour: Colour
+
+    getColour(): Colour
+}
+```
+
 #### State Manager
 Checks to see if a winning state has occured.
+
+Go through each Slot. If a Slot has a Counter in it then perform the following checks:
+- Vertical line (ascending) check
+- Vertical line (descending) check
+- Horizontal line (left) check
+- Horizontal line (ascending) check
+- Diagonal line (ascending) check
+- Diagonal line (descending) check
 
 ### Data Flow Diagrams (DFD)
 Illustrates how data moves through the system.
