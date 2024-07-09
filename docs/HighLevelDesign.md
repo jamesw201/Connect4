@@ -85,6 +85,8 @@ type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
 type EndGameFn = (EndState) => void
 ```
 
+Workflows
+```
 StartGameFn
  |> ProcessGameTurnFn
  |> EndGameFn
@@ -94,6 +96,7 @@ ProcessGameTurnFn
  |> PlayerMoveFn
  |> SwitchTurnsFn
  |> ProcessGameTurnFn
+```
 
 Interactions
 ```
