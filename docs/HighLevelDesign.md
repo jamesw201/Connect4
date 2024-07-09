@@ -74,7 +74,7 @@ A Player may take a Counter from the remaining Counters and place it into any of
 #### Board
 The Board is made up of Rows and Columns of Slots.
 <div style="text-align: center;">
-    <img src="connect4_board.svg" style="display:block; margin-left:auto; margin-right:auto;" width='300px' height='325px'/>
+    <img src="connect4_board.svg" style="display:block; margin-left:auto; margin-right:auto;" width='300px' height='300px'/>
 </div>     
 <br />
     
