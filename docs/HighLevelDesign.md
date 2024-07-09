@@ -76,6 +76,7 @@ The Board is made up of Rows and Columns of Slots.
 <div style="text-align: center;">
   <img src="connect4_board.svg" alt="Description" style="display: block; margin: 20px auto;" width=50% height=50% align="left">
 </div>     
+<br />
     
 ```
 Board {
