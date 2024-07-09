@@ -30,7 +30,7 @@ def generate_connect4_board(config, layout, filename='connect4_board.svg'):
 config = {
     'rows': 6,
     'cols': 7,
-    'cell_size': 50,
+    'cell_size': 30,
     'padding': 10,
     'board_color': '#0000FF',  # Blue board color
     'color_map': {

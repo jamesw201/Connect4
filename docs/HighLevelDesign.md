@@ -26,6 +26,75 @@ Nb. First create the StateManager. Then create the Board, providing callback ref
 ### System Context
 Provides a high-level view of the system and its interactions with external entities (users, other systems).
 
+
+#### Domain Entities
+Game
+Player
+Slot
+Board
+  Column { Slot[] }
+  Row { Slot[] }
+Counter
+
+#### Actions and Events
+Placing a Counter
+Checking for Win condition
+Switching turns
+Game over
+
+#### Error states
+IncorrectColumnSelection
+
+#### Workflow steps
+Start Game: Initialize the game with a board and two players.
+Player Turn: Allow the current player to make a move.
+Check Win/Draw: Determine if the game should end.
+End Game: Declare the winner or a draw.
+
+Game entities
+```
+type Player = {
+  id: number
+  name: string
+  colour: string
+}
+
+type Board = {
+  cells: (Player | null)[][]
+}
+
+type GameState = {
+  board: Board
+  players: Player[]
+  currentPlayer: Player
+}
+
+type EndState = {
+  board: Board
+  winner: Player | null
+}
+```
+
+Workflow steps
+```
+type StartGameFn = () => GameState
+type ProcessGameTurnFn = Async (GameState) => Result<GameState, EndState>
+type PlayerMoveFn = Async (column: number) => Result<GameState, PlayerMoveError>
+type CheckWinConditionFn = (board: Board, currentPlayer: Player) => Player | null
+type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
+type EndGameFn = (EndState) => void
+```
+
+StartGameFn
+ |> ProcessGameTurnFn
+ |> EndGameFn
+
+ProcessGameTurnFn
+ |> CheckWinConditionFn
+ |> PlayerMoveFn
+ |> SwitchTurnsFn
+ |> ProcessGameTurnFn
+
 Interactions
 ```
 Process "Initialise game"
@@ -40,9 +109,10 @@ Process "Take turn"
 ```
 
 ```
-Process "End state reached"
+Process "Winner declared"
   Caused by Game-won event being raised by StateManager
 ```
+
 
 #### External Entities
 Players: there will be two human players.
@@ -58,6 +128,7 @@ Players: there will be two human players.
 - players play pieces sequentially
 - the game identifies winning turns and ends at that point
 - there are enough Counters to fill every Slot in the Board
+
 
 ### Architecture Diagram
 A visual representation of the system architecture, showing major components and their relationships.
@@ -122,9 +193,6 @@ Go through each Slot. If a Slot has a Counter in it then perform the following c
 Illustrates how data moves through the system.
 ### Use Case Diagrams
 Depicts the interactions between users and the system.
-### Use Case Diagrams
-### Deployment Diagram
-Shows how the software will be deployed across various hardware components or nodes.
 
 
 ## Design Considerations
