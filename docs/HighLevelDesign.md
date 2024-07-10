@@ -2,6 +2,10 @@
 
 ## Introduction
 
+<div style="text-align: center;">
+    <img src="connect4_board.svg" style="display:block; margin-left:auto; margin-right:auto;" width='300px' height='300px'/>
+</div>
+
 ### Purpose
 The aim is to develop an interactive version of the game which the candidate and interviewer
 can play together.
@@ -26,32 +30,10 @@ Nb. First create the StateManager. Then create the Board, providing callback ref
 ### System Context
 Provides a high-level view of the system and its interactions with external entities (users, other systems).
 
-
-#### Domain Entities
-Game
-Player
-Slot
-Board
-  Column { Slot[] }
-  Row { Slot[] }
-Counter
-
-#### Actions and Events
-Placing a Counter
-Checking for Win condition
-Switching turns
-Game over
-
 #### Error states
 IncorrectColumnSelection
 
-#### Workflow steps
-Start Game: Initialize the game with a board and two players.
-Player Turn: Allow the current player to make a move.
-Check Win/Draw: Determine if the game should end.
-End Game: Declare the winner or a draw.
-
-Game entities
+#### Domain Entities
 ```
 type Player = {
   id: number
@@ -75,17 +57,17 @@ type EndState = {
 }
 ```
 
-Workflow steps
+#### Workflow steps
 ```
 type StartGameFn = () => GameState
 type ProcessGameTurnFn = Async (GameState) => Result<GameState, EndState>
 type PlayerMoveFn = Async (column: number) => Result<GameState, PlayerMoveError>
-type CheckWinConditionFn = (board: Board, currentPlayer: Player) => Player | null
+type CheckWinConditionFn = (board: Board) => Player | null
 type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
 type EndGameFn = (EndState) => void
 ```
 
-Workflows
+#### Workflow
 ```
 StartGameFn
  |> ProcessGameTurnFn
@@ -151,37 +133,8 @@ The Board is made up of Rows and Columns of Slots.
     <img src="connect4_board.svg" style="display:block; margin-left:auto; margin-right:auto;" width='300px' height='300px'/>
 </div>
 
-```
-Board {
-    rows: Row[]
-    columns: Column[]
-    
-    dropCounter(column: number, counter: Counter)
-}
-```
 
-#### Slot
-A Slot is a single disk sized section of the Board. It can hold one Counter.
-
-#### Counters
-The set of all Counters.
-
-#### Counter
-A Counter is a coloured plastic disk which can fit into the Columns of the Board (at least in the physical game).
-
-There are enough Counters to fill every Slot in the Board.
-
-```
-Colour: 'red' | 'yellow'
-
-Counter {
-    colour: Colour
-
-    getColour(): Colour
-}
-```
-
-#### State Manager
+#### Win state checks
 Checks to see if a winning state has occured.
 
 Go through each Slot. If a Slot has a Counter in it then perform the following checks:

@@ -4,17 +4,26 @@
   "description": "## Introduction",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "babel src --out-dir dist --extensions \".ts,.tsx\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^4",
     "commander": "^12.1.0",
-    "figlet": "^1.7.0"
+    "figlet": "^1.7.0",
+    "inquirer": "^10.0.1",
+    "ts-pattern": "^5.2.0",
+    "ts-results": "^3.3.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/plugin-proposal-pipeline-operator": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@types/node": "^20.14.10",
     "typescript": "^5.5.3"
   }
