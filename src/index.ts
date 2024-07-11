@@ -4,7 +4,7 @@ import inquirer from 'inquirer'
 import { Result, Ok, Err } from 'ts-results'
 import type { GameState, Player } from "./types"
 import Board from './board'
-import { DIRECTION, MAX_COLS, MAX_ROWS } from "./params"
+import { DIRECTION, MAX_COLS } from "./params"
 
 const program = new Command()
 
