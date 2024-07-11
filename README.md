@@ -21,3 +21,6 @@ node dist/index.ts
 ```
 
 ## How to build
+```
+npm run build
+```
