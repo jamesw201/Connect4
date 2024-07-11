@@ -1,6 +1,5 @@
 import { Command } from "commander"
 const figlet = require("figlet")
-// import chalk from 'chalk'
 // import figlet from "figlet"
 import inquirer from 'inquirer'
 import { Result, Ok, Err } from 'ts-results'
@@ -15,9 +14,6 @@ console.log(figlet.textSync("Connect 4"))
 program
   .version("1.0.0")
   .description("A text based version of Connect 4")
-  // .option("-l, --ls  [value]", "List directory contents")
-  // .option("-m, --mkdir <value>", "Create a directory")
-  // .option("-t, --touch <value>", "Create a file")
   .parse(process.argv)
 
 const options = program.opts()
