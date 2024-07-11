@@ -4,7 +4,7 @@
   "description": "## Introduction",
   "main": "index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --extensions \".ts,.tsx\"",
+    "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,6 +1,6 @@
 import svgwrite
 
-def generate_connect4_board(config, layout, filename='connect4_board.svg'):
+def generate_connect4_board(config, layout, filename='./docs/connect4_board.svg'):
     rows = config['rows']
     cols = config['cols']
     cell_size = config['cell_size']
