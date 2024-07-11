@@ -1,6 +1,5 @@
 import { Command } from "commander"
 const figlet = require("figlet")
-// import figlet from "figlet"
 import inquirer from 'inquirer'
 import { Result, Ok, Err } from 'ts-results'
 import type { GameState, Player } from "./types"
@@ -28,15 +27,7 @@ class PlayerMoveError extends Error {
   }
 }
 
-type StartGameFn = (board: Board) => GameState
-type ProcessGameTurnFn = (gameState: GameState) => Promise<GameState>
-type PlayerMoveFn = (gameState: GameState, column: number) => Result<GameState, PlayerMoveError>
-type CheckWinConditionFn = (gameState: GameState, column: number) => GameState
-type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
-type EndGameFn = (endState: Promise<GameState>) => void
-
-
-const startGame: StartGameFn = (board: Board): GameState => {
+function startGame(board: Board): GameState {
   const players = [{ id: 1, name: 'Player 1', colour: 'red' }, { id: 2, name: 'Player 2', colour: 'yellow' }]
 
   return {
@@ -48,7 +39,7 @@ const startGame: StartGameFn = (board: Board): GameState => {
   }
 }
 
-const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<GameState, PlayerMoveError> => {
+function playerMove(gameState: GameState, column: number): Result<GameState, PlayerMoveError> {
   const { board, currentPlayer } = gameState
 
   if (column > MAX_COLS) {
@@ -67,7 +58,7 @@ const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<
   return Ok(gameState)
 }
 
-const checkWinCondition: CheckWinConditionFn = (gameState: GameState, column: number): GameState => {
+function checkWinCondition(gameState: GameState, column: number): GameState {
   const { board, currentPlayer } = gameState
   const stackHeight = board.columnTokenCount(column - 1) || 0
   const currentCell: [number, number] = [board.cells.length - stackHeight, column - 1]
@@ -94,11 +85,11 @@ const checkWinCondition: CheckWinConditionFn = (gameState: GameState, column: nu
   return gameState
 }
 
-const switchTurns: SwitchTurnsFn = (currentPlayer: Player, players: Player[]): Player => {
+function switchTurns(currentPlayer: Player, players: Player[]): Player {
   return players.filter(player => player.id !== currentPlayer.id)[0]
 }
 
-const endGame: EndGameFn = (gameState: Promise<GameState>): void => {
+function endGame(gameState: Promise<GameState>): void {
   gameState.then(res => {
     const { board } = res
     console.log(figlet.textSync(`${res.winner?.name}  wins!`))
@@ -106,8 +97,8 @@ const endGame: EndGameFn = (gameState: Promise<GameState>): void => {
   })
 }
 
-const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise<GameState> => {
-  const { board } = gameState
+async function processGameTurn(gameState: GameState): Promise<GameState> {
+  const { board, currentPlayer } = gameState
 
   if (gameState.winner) {
     return gameState
@@ -118,7 +109,7 @@ const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise
     {
       type: 'input',
       name: 'column',
-      message: `Player ${gameState.currentPlayer.name}, please select a column`,
+      message: `Player ${currentPlayer.name}, please select a column`,
     },
   ])
 
@@ -126,7 +117,7 @@ const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise
 
   const newGameState = checkWinCondition(gameState, answers.column)
   if (!newGameState?.winner) {
-    gameState.currentPlayer = switchTurns(gameState.currentPlayer, gameState.players)
+    newGameState.currentPlayer = switchTurns(currentPlayer, gameState.players)
   }
 
   return processGameTurn(newGameState)
