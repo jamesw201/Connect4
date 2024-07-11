@@ -4,7 +4,7 @@ import inquirer from 'inquirer'
 import { Result, Ok, Err } from 'ts-results'
 import type { GameState, Player } from "./types"
 import Board from './board'
-import { DIRECTION, MAX_COLS } from "./params"
+import { DIRECTION, MAX_COLS, MAX_ROWS } from "./params"
 
 const program = new Command()
 
@@ -41,10 +41,6 @@ function startGame(board: Board): GameState {
 
 function playerMove(gameState: GameState, column: number): Result<GameState, PlayerMoveError> {
   const { board, currentPlayer } = gameState
-
-  if (column > MAX_COLS) {
-    return Err(new PlayerMoveError(`Player selected column ${column}, there are only ${MAX_COLS} columns`))
-  }
 
   const currentHeight = board.columnTokenCount(column)
 
@@ -105,22 +101,34 @@ async function processGameTurn(gameState: GameState): Promise<GameState> {
   }
   board.print()
 
-  const answers = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'column',
-      message: `Player ${currentPlayer.name}, please select a column`,
-    },
-  ])
+  const column = await promptPlayer(board, currentPlayer)
 
-  playerMove(gameState, answers.column - 1)
+  playerMove(gameState, column - 1)
 
-  const newGameState = checkWinCondition(gameState, answers.column)
+  const newGameState = checkWinCondition(gameState, column)
   if (!newGameState?.winner) {
     newGameState.currentPlayer = switchTurns(currentPlayer, gameState.players)
   }
 
   return processGameTurn(newGameState)
+}
+
+async function promptPlayer(board: Board, currentPlayer: Player): Promise<number> {
+  while (true) {
+    const { column } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'column',
+        message: `Player ${currentPlayer.name}, please select a column`,
+      },
+    ]);
+
+    if (column <= MAX_COLS) {
+      return column;
+    } else {
+      console.log(`Error: Player selected column ${column}, but there are only ${MAX_COLS} columns.`);
+    }
+  }
 }
 
 
