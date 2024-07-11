@@ -47,7 +47,7 @@ type GameState = {
   players: Player[]
   currentPlayer: Player
   winner: Player | null
-  winningLine: [[number, number]] | null
+  winningLine: Array<[number, number]> | null
 }
 
 const MAX_ROWS = 5
@@ -100,7 +100,7 @@ const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<
   return Ok(gameState)
 }
 
-const printBoard = (board: Board, winningLine?: [[number, number]]): void => {
+const printBoard = (board: Board, winningLine?: Array<[number, number]> | null): void => {
   const columns = board.cells[0].length
 
   // Print the column headers
@@ -145,9 +145,9 @@ const columnTokenCount = (board: Board, column: number): number => {
   return tokenCount
 }
 
-const findTokens = (direction: DIRECTION, board: Board, colour: string, cell: [number, number]): [[number, number]] => {
+const findTokens = (direction: DIRECTION, board: Board, colour: string, cell: [number, number]): Array<[number, number]> => {
   let [row, col] = cell
-  let tokens: [[number, number]] = []
+  let tokens: Array<[number, number]> = []
 
   while (true) {
     [row, col] = match(direction)
@@ -159,7 +159,7 @@ const findTokens = (direction: DIRECTION, board: Board, colour: string, cell: [n
       .with(DIRECTION.UpRight, () => [row - 1, col + 1])
       .with(DIRECTION.DownLeft, () => [row + 1, col - 1])
       .with(DIRECTION.DownRight, () => [row + 1, col + 1])
-      .exhaustive();
+      .otherwise(() => [])
 
     if (row < 0 || row > MAX_ROWS || col < 0 || col > MAX_COLS || board.cells[row][col]?.colour !== colour) {
       break;
@@ -173,7 +173,7 @@ const findTokens = (direction: DIRECTION, board: Board, colour: string, cell: [n
 
 const checkWinCondition: CheckWinConditionFn = (gameState: GameState, column: number): GameState => {
   const stackHeight = columnTokenCount(gameState.board, column - 1) || 0
-  const currentCell = [gameState.board.cells.length - stackHeight, column - 1]
+  const currentCell: [number, number] = [gameState.board.cells.length - stackHeight, column - 1]
 
   const directions = [
     [DIRECTION.Up, DIRECTION.Down],
@@ -203,7 +203,7 @@ const switchTurns: SwitchTurnsFn = (currentPlayer: Player, players: Player[]): P
 
 const endGame: EndGameFn = (gameState: Promise<GameState>): void => {
   gameState.then(res => {
-    console.log(figlet.textSync(`${res.winner.name}  wins!`))
+    console.log(figlet.textSync(`${res.winner?.name}  wins!`))
     printBoard(res.board, res.winningLine)
   })
 }
