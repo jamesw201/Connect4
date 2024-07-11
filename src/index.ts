@@ -4,9 +4,21 @@ const figlet = require("figlet")
 const chalk = require("chalk")
 // import figlet from "figlet"
 import inquirer from 'inquirer'
-import { Result, Ok, Err, Option, Some, None } from 'ts-results'
+import { Result, Ok, Err } from 'ts-results'
+import { match } from 'ts-pattern'
 
 const program = new Command()
+
+enum DIRECTION {
+  Up = 1,
+  Down,
+  Left,
+  Right,
+  UpLeft,
+  UpRight,
+  DownLeft,
+  DownRight,
+}
 
 console.log(figlet.textSync("Connect 4"))
 
@@ -34,12 +46,12 @@ type GameState = {
   board: Board
   players: Player[]
   currentPlayer: Player
+  winner: Player | null
+  winningLine: [[number, number]] | null
 }
 
-type EndState = {
-  board: Board
-  winner: Player | null
-}
+const MAX_ROWS = 5
+const MAX_COLS = 6
 
 class PlayerMoveError extends Error {
 
@@ -51,15 +63,13 @@ class PlayerMoveError extends Error {
 }
 
 type StartGameFn = () => GameState
-type ProcessGameTurnFn = (gameState: GameState) => Promise<Option<EndState>>
+type ProcessGameTurnFn = (gameState: GameState) => Promise<GameState>
 type PlayerMoveFn = (gameState: GameState, column: number) => Result<GameState, PlayerMoveError>
-type CheckWinConditionFn = (board: Board, column: number) => Player | null
+type CheckWinConditionFn = (gameState: GameState, column: number) => GameState
 type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
-type EndGameFn = (endState: Promise<Option<EndState>>) => void
+type EndGameFn = (endState: Promise<GameState>) => void
 
 const startGame: StartGameFn = (): GameState => {
-  console.log("running StartGame")
-
   const players = [{ id: 1, name: 'Player 1', colour: 'red' }, { id: 2, name: 'Player 2', colour: 'yellow' }]
 
   return {
@@ -68,6 +78,8 @@ const startGame: StartGameFn = (): GameState => {
     },
     players,
     currentPlayer: players[0],
+    winner: null,
+    winningLine: null,
   }
 }
 
@@ -77,42 +89,44 @@ const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<
   }
 
   const currentHeight = columnTokenCount(gameState.board, column)
-  console.log(`column ${column}, current height: ${currentHeight}`)
 
   if (currentHeight === gameState.board.cells.length) {
     return Err(new PlayerMoveError('Column is used up'))
   }
 
-  const newSlot = (gameState.board.cells.length - 1) - currentHeight
-  gameState.board.cells[newSlot][column] = gameState.currentPlayer
-
-  const newHeight = columnTokenCount(gameState.board, column)
-  console.log(`column ${column + 1}, new height: ${(newHeight)}`)
+  const currentRow = (gameState.board.cells.length - 1) - currentHeight
+  gameState.board.cells[currentRow][column] = gameState.currentPlayer
 
   return Ok(gameState)
 }
 
-const printBoard = (board: Board): void => {
+const printBoard = (board: Board, winningLine?: [[number, number]]): void => {
   const columns = board.cells[0].length
 
   // Print the column headers
   let header = '  ' + Array.from({ length: columns }, (_, i) => (i + 1).toString()).join('  |  ')
   console.log(chalk.cyan(header))
 
+  // Create a Set from winningLine for efficient lookups
+  const winningLineSet = new Set(winningLine?.map(([row, col]) => `${row},${col}`));
+
   // Print the rows
-  for (let row of board.cells) {
-    let rowStr = '| ' + row.map(cell => formatCell(cell)).join('  |  ') + ' |'
-    console.log(rowStr)
-    // console.log(chalk.gray('-'.repeat(columns * 2 + 1)))
+  for (let rowIndex = 0; rowIndex < board.cells.length; rowIndex++) {
+    let row = board.cells[rowIndex];
+    let rowStr = '| ' + row.map((cell, colIndex) => {
+      let marked = winningLineSet.has(`${rowIndex},${colIndex}`);
+      return formatCell(cell, marked);
+    }).join('  |  ') + ' |';
+    console.log(rowStr);
   }
 }
 
-const formatCell = (cell: Player | null): string => {
+const formatCell = (cell: Player | null, marked: boolean): string => {
   if (cell) {
     if (cell.colour === 'red') {
-      return chalk.red('O')
+      return marked ? chalk.red('X') : chalk.red('O')
     } else if (cell.colour === 'yellow') {
-      return chalk.yellow('O')
+      return marked ? chalk.yellow('X') : chalk.yellow('O')
     }
   }
 
@@ -130,37 +144,73 @@ const columnTokenCount = (board: Board, column: number): number => {
   return tokenCount
 }
 
-const checkWinCondition: CheckWinConditionFn = (board: Board, column: number): Player | null => {
-  console.log(`checkWinCondition board: ${board.cells.length}x${board.cells[0].length} `)
-  const stackHeight = columnTokenCount(board, column) || board.cells.length
-  console.log(`wincheck counters: ${stackHeight}, col: ${column}`)
+const findTokens = (direction: DIRECTION, board: Board, colour: string, cell: [number, number]): [[number, number]] => {
+  let [row, col] = cell
+  let tokens: [[number, number]] = []
 
-  // Vertical checks
-  const up =
-  const down =
+  while (true) {
+    [row, col] = match(direction)
+      .with(DIRECTION.Up, () => [row - 1, col])
+      .with(DIRECTION.Down, () => [row + 1, col])
+      .with(DIRECTION.Left, () => [row, col - 1])
+      .with(DIRECTION.Right, () => [row, col + 1])
+      .with(DIRECTION.UpLeft, () => [row - 1, col - 1])
+      .with(DIRECTION.UpRight, () => [row - 1, col + 1])
+      .with(DIRECTION.DownLeft, () => [row + 1, col - 1])
+      .with(DIRECTION.DownRight, () => [row + 1, col + 1])
+      .exhaustive();
 
-  // Horizontal checks
-  const left =
-  const right =
+    if (row < 0 || row > MAX_ROWS || col < 0 || col > MAX_COLS || board.cells[row][col]?.colour !== colour) {
+      break;
+    }
 
-  // Diagonal checks
-  const leftUp =
-  // const leftDown = 
-  // const rightUp = 
-  // const rightDown = 
+    tokens.push([row, col])
+  }
 
-  return null
+  return tokens
+}
+
+const checkWinCondition: CheckWinConditionFn = (gameState: GameState, column: number): GameState => {
+  const stackHeight = columnTokenCount(gameState.board, column - 1) || 0
+  const currentCell = [gameState.board.cells.length - stackHeight, column - 1]
+
+  const directions = [
+    [DIRECTION.Up, DIRECTION.Down],
+    [DIRECTION.Left, DIRECTION.Right],
+    [DIRECTION.UpLeft, DIRECTION.DownRight],
+    [DIRECTION.UpRight, DIRECTION.DownLeft]
+  ]
+
+  directions.forEach(direction => {
+    const first = findTokens(direction[0], gameState.board, gameState.currentPlayer.colour, currentCell)
+    const second = findTokens(direction[1], gameState.board, gameState.currentPlayer.colour, currentCell)
+    const combined = [[currentCell], first, second].filter(arr => arr.length > 0).flat()
+    const lineLength = first.length + 1 + second.length
+
+    if (lineLength >= 4) {
+      gameState.winner = gameState.currentPlayer
+      gameState.winningLine = combined
+    }
+  })
+
+  return gameState
 }
 
 const switchTurns: SwitchTurnsFn = (currentPlayer: Player, players: Player[]): Player => {
   return players.filter(player => player.id !== currentPlayer.id)[0]
 }
 
-const endGame: EndGameFn = (endState: Promise<Option<EndState>>): void => {
-  endState.then(res => console.log("endGame endState", res))
+const endGame: EndGameFn = (gameState: Promise<GameState>): void => {
+  gameState.then(res => {
+    console.log(figlet.textSync(`${res.winner.name}  wins!`))
+    printBoard(res.board, res.winningLine)
+  })
 }
 
-const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise<Option<EndState>> => {
+const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise<GameState> => {
+  if (gameState.winner) {
+    return gameState
+  }
   printBoard(gameState.board)
 
   const answers = await inquirer.prompt([
@@ -171,28 +221,19 @@ const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise
     },
   ])
 
-  // change gameState
   playerMove(gameState, answers.column - 1)
 
-  printBoard(gameState.board)
-
-  const winResult = checkWinCondition(gameState.board, answers.column)
-  if (winResult) {
-    return Some({ board: gameState.board, winner: gameState.currentPlayer })
+  const newGameState = checkWinCondition(gameState, answers.column)
+  if (!newGameState?.winner) {
+    gameState.currentPlayer = switchTurns(gameState.currentPlayer, gameState.players)
   }
 
-  gameState.currentPlayer = switchTurns(gameState.currentPlayer, gameState.players)
-
-  processGameTurn(gameState)
+  return processGameTurn(newGameState)
 }
 
 if (Object.keys(options).length === 0) {
   const game = startGame()
   const result = processGameTurn(game)
   endGame(result)
-
-  // startGame()
-  // |> processGameTurn
-  // |> endGame
 }
 
