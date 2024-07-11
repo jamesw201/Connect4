@@ -123,10 +123,10 @@ async function promptPlayer(board: Board, currentPlayer: Player): Promise<number
       },
     ]);
 
-    if (column < MAX_COLS + 1) {
-      return column;
+    if (column <= MAX_COLS + 1) {
+      return column
     } else {
-      console.log(`Error: Player selected column ${column}, but there are only ${MAX_COLS} columns.`);
+      console.log(`Error: Player selected column ${column}, but there are only ${MAX_COLS} columns.`)
     }
   }
 }
