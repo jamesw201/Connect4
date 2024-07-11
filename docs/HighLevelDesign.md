@@ -87,19 +87,25 @@ A Player may take a Counter from the remaining Counters and place it into any of
 #### Board
 The Board is made up of Rows and Columns of Slots.
 
+Besides being a container for its Slots, the Board also has functionality of its own:
+  `columnTokenCount: (column: number) => number`
+  Returns the number of tokens held in a given column.
 
-#### Win state checks
-At each go a "win check" will be executed. Taking the last placed token position and working out if a series of 4 tokens can be found by looking either side of it.
+  `findTokens: (direction: DIRECTION, colour: string, cell: [number, number]) => Array<[number, number]>`
+  Taking the last placed token position and working out if a series of 4 tokens can be found by looking either side of it.
 
-This middle-out function is quicker than looping through all the rows.
+  This middle-out function is quicker than looping through all the rows.
 
-The different directions to check are:
-- Vertical line (ascending)
-- Vertical line (descending)
-- Horizontal line (left)
-- Horizontal line (ascending)
-- Diagonal line (ascending)
-- Diagonal line (descending)
+  The different directions to check are:
+  - Vertical line (ascending)
+  - Vertical line (descending)
+  - Horizontal line (left)
+  - Horizontal line (ascending)
+  - Diagonal line (ascending)
+  - Diagonal line (descending)
+
+  `print: (winningLine?: Array<[number, number]> | null) => void`
+  Prints out a representation of the board to the CLI, marking a winning line with 'X's if one exists.
 
 
 ## Design Considerations
