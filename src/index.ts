@@ -22,7 +22,6 @@ program
 
 const options = program.opts()
 
-const board = Board()
 
 class PlayerMoveError extends Error {
 
@@ -33,7 +32,7 @@ class PlayerMoveError extends Error {
   }
 }
 
-type StartGameFn = () => GameState
+type StartGameFn = (board: Board) => GameState
 type ProcessGameTurnFn = (gameState: GameState) => Promise<GameState>
 type PlayerMoveFn = (gameState: GameState, column: number) => Result<GameState, PlayerMoveError>
 type CheckWinConditionFn = (gameState: GameState, column: number) => GameState
@@ -41,7 +40,7 @@ type SwitchTurnsFn = (currentPlayer: Player, players: Player[]) => Player
 type EndGameFn = (endState: Promise<GameState>) => void
 
 
-const startGame: StartGameFn = (): GameState => {
+const startGame: StartGameFn = (board: Board): GameState => {
   const players = [{ id: 1, name: 'Player 1', colour: 'red' }, { id: 2, name: 'Player 2', colour: 'yellow' }]
 
   return {
@@ -54,7 +53,7 @@ const startGame: StartGameFn = (): GameState => {
 }
 
 const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<GameState, PlayerMoveError> => {
-  const { board } = gameState
+  const { board, currentPlayer } = gameState
 
   if (column > MAX_COLS) {
     return Err(new PlayerMoveError(`Player selected column ${column}, there are only ${MAX_COLS} columns`))
@@ -67,7 +66,7 @@ const playerMove: PlayerMoveFn = (gameState: GameState, column: number): Result<
   }
 
   const currentRow = (board.cells.length - 1) - currentHeight
-  gameState.board.cells[currentRow][column] = gameState.currentPlayer
+  board.cells[currentRow][column] = currentPlayer
 
   return Ok(gameState)
 }
@@ -137,8 +136,10 @@ const processGameTurn: ProcessGameTurnFn = async (gameState: GameState): Promise
   return processGameTurn(newGameState)
 }
 
+
 if (Object.keys(options).length === 0) {
-  const game = startGame()
+  const board = Board()
+  const game = startGame(board)
   const result = processGameTurn(game)
   endGame(result)
 }
