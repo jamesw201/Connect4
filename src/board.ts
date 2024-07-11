@@ -21,7 +21,7 @@ function Board(): Board {
 
   function print(winningLine?: Array<[number, number]> | null): void {
     // Print the column headers
-    let header = '  ' + Array.from({ length: MAX_COLS }, (_, i) => (i + 1).toString()).join('  |  ')
+    let header = '  ' + Array.from({ length: MAX_COLS + 1 }, (_, i) => (i + 1).toString()).join('  |  ')
     console.log(chalk.cyan(header))
 
     // Create a Set from winningLine for efficient lookups
