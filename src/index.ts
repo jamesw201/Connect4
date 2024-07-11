@@ -111,6 +111,7 @@ const printBoard = (board: Board, winningLine?: [[number, number]]): void => {
   const winningLineSet = new Set(winningLine?.map(([row, col]) => `${row},${col}`));
 
   // Print the rows
+  // Nb. needs refactoring, move to model
   for (let rowIndex = 0; rowIndex < board.cells.length; rowIndex++) {
     let row = board.cells[rowIndex];
     let rowStr = '| ' + row.map((cell, colIndex) => {
